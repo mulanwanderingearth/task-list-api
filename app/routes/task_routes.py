@@ -2,6 +2,7 @@ from flask import Blueprint,abort, make_response, request,Response
 from ..db import db
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 from app.models.task import Task
+from app.routes.route_utilities import validate_model
 
 @tasks_bp.post("")
 def create_task():
@@ -26,6 +27,12 @@ def create_task():
 @tasks_bp.get("")
 def get_all_tasks():
     query = db.select(Task)
+    sort_quaram = request.args.get("sort")
+    if sort_quaram =="asc" :
+        query = query.order_by(Task.title.asc())
+    elif sort_quaram == "desc":
+         query = query.order_by(Task.title.desc())
+
     tasks = db.session.scalars(query)
 
     if not tasks:
