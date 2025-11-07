@@ -6,31 +6,16 @@ from datetime import datetime
 import requests
 import os
 
-tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
+bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
 
-@tasks_bp.post("")
+@bp.post("")
 def create_task():
     request_body = request.get_json()
-
-    try:
-        title = request_body["title"]
-        description = request_body["description"]
-    except KeyError:
-        return {"details": "Invalid data"}, 400
-
-    completed_at = request_body.get("completed_at")
-
-    new_task = Task.from_dict(
-        request_body
-    )
-    db.session.add(new_task)
-    db.session.commit()
-
-    return new_task.to_dict(), 201
+    return create_model(Task, request_body)
 
 
-@tasks_bp.get("")
+@bp.get("")
 def get_all_tasks():
     query = db.select(Task)
     sort_quaram = request.args.get("sort")
@@ -47,16 +32,20 @@ def get_all_tasks():
     return [task.to_dict() for task in tasks]
 
 
-@tasks_bp.get("/<task_id>")
+@bp.get("/<task_id>")
 def get_one_task(task_id):
     task = validate_model(Task, task_id)
     return task.to_dict_with_goal_id()
 
 
-@tasks_bp.put("/<task_id>")
+@bp.put("/<task_id>")
 def update_one_task(task_id):
     task = validate_model(Task, task_id)
     request_body = request.get_json()
+    
+    if not request_body:
+        return {"details": "Invalid data"}, 400
+    
     task.title = request_body.get("title")
     task.description = request_body.get("description")
     task.completed_at = request_body.get("completed_at")
@@ -66,7 +55,7 @@ def update_one_task(task_id):
     return Response(status=204, mimetype="application/json")
 
 
-@tasks_bp.delete("/<task_id>")
+@bp.delete("/<task_id>")
 def delete_one_task(task_id):
     task = validate_model(Task, task_id)
 
@@ -76,7 +65,7 @@ def delete_one_task(task_id):
     return Response(status=204, mimetype="application/json")
 
 
-@tasks_bp.patch("/<task_id>/mark_complete")
+@bp.patch("/<task_id>/mark_complete")
 def mark_task_complete(task_id):
     task = validate_model(Task, task_id)
     task.completed_at = datetime.now()
@@ -92,7 +81,7 @@ def mark_task_complete(task_id):
     return Response(status=204, mimetype="application/json")
 
 
-@tasks_bp.patch("/<task_id>/mark_incomplete")
+@bp.patch("/<task_id>/mark_incomplete")
 def mark_task_incomplete(task_id):
     task = validate_model(Task, task_id)
     task.completed_at = None

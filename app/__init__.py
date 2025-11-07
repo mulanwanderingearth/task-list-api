@@ -1,15 +1,17 @@
 from flask import Flask
 from .db import db, migrate
 from .models import task, goal
-from app.routes.task_routes import tasks_bp
-from app.routes.goal_routes import goals_bp
+from app.routes.task_routes import bp as tasks_bp
+from app.routes.goal_routes import bp as goals_bp
 import os
+
 
 def create_app(config=None):
     app = Flask(__name__)
 
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+        'SQLALCHEMY_DATABASE_URI')
 
     if config:
         # Merge `config` into the app's configuration
