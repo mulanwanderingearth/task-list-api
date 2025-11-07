@@ -1,5 +1,5 @@
 from flask import abort, make_response
-from app.db import db
+from ..db import db
 def validate_model(cls, model_id):
     try:
         model_id = int (model_id)
@@ -15,3 +15,16 @@ def validate_model(cls, model_id):
         abort(make_response(response, 404))
 
     return model
+
+def create_model(cls, model_data):
+    try:
+        new_model = cls.from_dict(model_data)
+    except KeyError as error:
+        response = {"details": f"Invalid data"}
+        abort(make_response(response, 400))
+    
+    db.session.add(new_model)
+    db.session.commit()
+    
+    return new_model.to_dict(), 201
+
