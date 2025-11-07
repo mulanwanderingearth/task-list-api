@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.models.task import Task
 from ..db import db
+
 
 class Goal(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -9,12 +11,16 @@ class Goal(db.Model):
     def to_dict(self):
         return {
             "id": self.id,
+            "title": self.title
+        }
+
+    def to_dict_with_tasks(self):
+        return {
+            "id": self.id,
             "title": self.title,
-            "tasks": self.tasks
+            "tasks": [task.to_dict_with_goal_id() for task in self.tasks]
         }
 
     @classmethod
     def from_dict(cls, goal_data):
         return cls(title=goal_data["title"])
-    
-   
