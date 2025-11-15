@@ -27,7 +27,8 @@ def get_all_tasks():
     tasks = db.session.scalars(query)
 
     if not tasks:
-        return {"details": "No tasks found"}, 404
+        response =  {"details": "No tasks found"}
+        abort(make_response(response, 400))
 
     return [task.to_dict() for task in tasks]
 
@@ -35,7 +36,7 @@ def get_all_tasks():
 @bp.get("/<task_id>")
 def get_one_task(task_id):
     task = validate_model(Task, task_id)
-    return task.to_dict_with_goal_id()
+    return task.to_dict()
 
 
 @bp.put("/<task_id>")
@@ -44,8 +45,9 @@ def update_one_task(task_id):
     request_body = request.get_json()
     
     if not request_body:
-        return {"details": "Invalid data"}, 400
-    
+        response =  {"details": "No tasks found"}
+        abort(make_response(response, 400))
+
     task.title = request_body.get("title")
     task.description = request_body.get("description")
     task.completed_at = request_body.get("completed_at")
@@ -72,7 +74,7 @@ def mark_task_complete(task_id):
     db.session.commit()
 
     token = os.environ.get("slack_token")
-    response = requests.post(
+    requests.post(
         url="https://slack.com/api/chat.postMessage",
         headers={"Authorization": f"Bearer {token}"},
         json={"channel": "task-notifications",

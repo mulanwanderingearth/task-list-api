@@ -16,7 +16,6 @@ def create_goal():
 
 
 @bp.get("")
-# need to refactor later
 def get_all_goals():
     query = db.select(Goal).order_by(Goal.id)
     goals = db.session.scalars(query)
@@ -35,7 +34,8 @@ def update_goal(goal_id):
     request_body = request.get_json()
     
     if not request_body or "title" not in request_body:
-        return {"details": "Invalid data"}, 400
+        response = {"details": "Invalid data"}
+        abort(make_response(response, 400))
     
     goal.title = request_body["title"]
     db.session.commit()

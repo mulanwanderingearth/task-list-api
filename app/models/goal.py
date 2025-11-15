@@ -15,11 +15,10 @@ class Goal(db.Model):
         }
 
     def to_dict_with_tasks(self):
-        return {
-            "id": self.id,
-            "title": self.title,
-            "tasks": [task.to_dict_with_goal_id() for task in self.tasks]
-        }
+        dict_with_tasks = Goal.to_dict(self)
+        dict_with_tasks["tasks"] = [task.to_dict() for task in self.tasks]
+        
+        return dict_with_tasks
 
     @classmethod
     def from_dict(cls, goal_data):

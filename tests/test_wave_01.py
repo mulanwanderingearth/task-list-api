@@ -137,7 +137,7 @@ def test_get_task(client, one_task):
         "title": "Go on my daily walk 🏞",
         "description": "Notice something new every day",
         "is_complete": False,
-        "goal_id": None
+        
     }
 
 
